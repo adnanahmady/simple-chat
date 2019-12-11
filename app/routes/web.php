@@ -19,3 +19,4 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/api/contacts', 'Api\ContactsController@index');
+Route::get('/api/conversations/{user}', 'Api\ConversationsController@show');
