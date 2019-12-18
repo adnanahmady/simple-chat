@@ -1,7 +1,7 @@
 <template>
     <textarea
         v-model="message"
-        @keydown.enter="send"
+        @keydown.enter.prevent="send"
         class="form-control border-0 rounded-top-0"
         placeholder="Message..."></textarea>
 </template>
@@ -12,6 +12,15 @@
             return {
                 message: ''
             };
+        },
+
+        methods: {
+            send() {
+                if (this.message.length == 0) return;
+
+                this.$emit('sendMessage', this.message);
+                this.message = '';
+            }
         }
     }
 </script>

@@ -1,9 +1,13 @@
 <template>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-light list-group-item-action"
+        <li :class="`list-group-item
+                    list-group-item-light
+                    list-group-item-action
+                    ${selectedId == contact.id && 'bg-selected'}`"
             style="cursor: pointer"
             v-for="(contact, index) in contacts"
-            :key="contact.id" @click="contactSelected(index, contact)">
+            :key="contact.id"
+            @click="contactSelected(index, contact)">
             <div class="row">
                 <div class="avatar col-3">
                     <img
@@ -30,12 +34,23 @@
             }
         },
 
+        data() {
+            return {
+                selectedId: 0
+            }
+        },
+
         methods: {
             contactSelected(index, contact) {
-                console.log('clicked contact index ' + index);
-
+                this.selectedId = contact.id;
                 this.$emit('selected', {index, contact});
             }
         }
     }
 </script>
+
+<style scoped>
+    .bg-selected {
+        background-color: #cee6ff !important;
+    }
+</style>

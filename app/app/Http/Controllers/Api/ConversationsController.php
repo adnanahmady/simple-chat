@@ -15,8 +15,27 @@ class ConversationsController extends Controller
 
     public function show($userId)
     {
-        $messages = Massege::where('from', $userId)->orWhere('to', $userId)->get();
+        $send = Massege::
+            where('from', auth()->id())
+            ->where('to', $userId)
+            ->get()->toArray();
+        $receive = Massege::
+            where('from', $userId)
+            ->where('to', auth()->id())
+            ->get()->toArray();
+        $messages = $send + $receive;
 
         return response()->json($messages, 200);
+    }
+
+    public function store()
+    {
+        $message = Massege::create([
+            'from' => auth()->id(),
+            'to' => request('content_id'),
+            'text' => request('text')
+        ]);
+
+        return response()->json($message, 201);
     }
 }

@@ -3,7 +3,7 @@
         <div class="col-8 d-flex">
             <content-component :content="selectedContent" :messages="messages"></content-component>
         </div>
-        <div class="col-4 overflow-auto" style="max-height: 123vh;">
+        <div class="col-4 overflow-auto" style="max-height: 68vh;">
             <contacts-component :contacts="contacts" @selected="contactSelected"></contacts-component>
         </div>
     </div>
@@ -43,7 +43,7 @@
                         this.selectedContent = contact;
                         this.messages = data;
                     })
-                    .catch(data => console.log(data));
+                    .catch(data => console.log(data.response));
             }
         }
     }
