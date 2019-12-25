@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NewMessage;
 use App\Http\Controllers\Controller;
-use App\Massege;
+use App\Message;
 use Illuminate\Http\Request;
 
 class ConversationsController extends Controller
@@ -15,26 +16,22 @@ class ConversationsController extends Controller
 
     public function show($userId)
     {
-        $send = Massege::
-            where('from', auth()->id())
-            ->where('to', $userId)
-            ->get()->toArray();
-        $receive = Massege::
-            where('from', $userId)
-            ->where('to', auth()->id())
-            ->get()->toArray();
-        $messages = $send + $receive;
+        $messages = Message::
+        whereIn('from', [auth()->id(), $userId])
+            ->whereIn('to', [auth()->id(), $userId])
+            ->get();
 
         return response()->json($messages, 200);
     }
 
     public function store()
     {
-        $message = Massege::create([
+        $message = Message::create([
             'from' => auth()->id(),
             'to' => request('content_id'),
             'text' => request('text')
         ]);
+        broadcast(new NewMessage($message));
 
         return response()->json($message, 201);
     }

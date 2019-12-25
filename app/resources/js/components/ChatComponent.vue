@@ -31,6 +31,9 @@
             }
         },
         mounted() {
+            Echo.private('messages.' + this.user.id)
+                .listen('.new.message', this.handleMessage);
+
             axios.get('/api/contacts')
                 .then(({data: _response}) => this.contacts = _response)
                 .catch(data => console.log(data));
@@ -44,6 +47,14 @@
                         this.messages = data;
                     })
                     .catch(data => console.log(data.response));
+            },
+
+            handleMessage({message}) {
+                if (+this.user.id === +message.to) {
+                    return this.messages.push(message);
+                }
+
+                // todo
             }
         }
     }

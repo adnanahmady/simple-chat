@@ -28,7 +28,7 @@ $factory->define(User::class, function (Faker $faker) {
     ];
 });
 
-$factory->define(\App\Massege::class, function (Faker $faker) {
+$factory->define(\App\Message::class, function (Faker $faker) {
     return [
         'from' => function () { return factory(User::class)->create()->id; },
         'to' => function () { return factory(User::class)->create()->id; },

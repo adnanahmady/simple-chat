@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Massege extends Model
+class Message extends Model
 {
     protected $fillable = ['from', 'to', 'text'];
 }
