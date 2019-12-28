@@ -40,21 +40,37 @@
         },
 
         methods: {
-            contactSelected({index, contact}) {
+            contactSelected(contact) {
                 axios.get('/api/conversations/' + contact.id)
                     .then(({data}) => {
                         this.selectedContent = contact;
                         this.messages = data;
+
+                        this.updateUnreadContact(contact, true);
                     })
                     .catch(data => console.log(data.response));
             },
 
             handleMessage({message}) {
-                if (+this.user.id === +message.to) {
+                if (this.selectedContent
+                    && +this.selectedContent.id === +message.from) {
                     return this.messages.push(message);
                 }
 
-                // todo
+                this.updateUnreadContact(message.from_contact, false);
+            },
+
+            updateUnreadContact(contact, didRead) {
+                this.contacts = this.contacts.map(function (single) {
+                    if (single.id !== contact.id) return single;
+
+                    if (didRead)
+                        single.unread_count = 0;
+                    else
+                        single.unread_count += 1;
+
+                    return single;
+                })
             }
         }
     }

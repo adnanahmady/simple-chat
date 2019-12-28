@@ -1883,26 +1883,34 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   methods: {
-    contactSelected: function contactSelected(_ref2) {
+    contactSelected: function contactSelected(contact) {
       var _this2 = this;
 
-      var index = _ref2.index,
-          contact = _ref2.contact;
-      axios.get('/api/conversations/' + contact.id).then(function (_ref3) {
-        var data = _ref3.data;
+      axios.get('/api/conversations/' + contact.id).then(function (_ref2) {
+        var data = _ref2.data;
         _this2.selectedContent = contact;
         _this2.messages = data;
+
+        _this2.updateUnreadContact(contact, true);
       })["catch"](function (data) {
         return console.log(data.response);
       });
     },
-    handleMessage: function handleMessage(_ref4) {
-      var message = _ref4.message;
+    handleMessage: function handleMessage(_ref3) {
+      var message = _ref3.message;
 
-      if (+this.user.id === +message.to) {
+      if (this.selectedContent && +this.selectedContent.id === +message.from) {
         return this.messages.push(message);
-      } // todo
+      }
 
+      this.updateUnreadContact(message.from_contact, false);
+    },
+    updateUnreadContact: function updateUnreadContact(contact, didRead) {
+      this.contacts = this.contacts.map(function (single) {
+        if (single.id !== contact.id) return single;
+        if (didRead) single.unread_count = 0;else single.unread_count += 1;
+        return single;
+      });
     }
   }
 });
@@ -1918,6 +1926,20 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1954,16 +1976,21 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      selectedId: 0
+      selectedId: this.contacts.length ? _toConsumableArray(this.contacts).shift().id : null
     };
   },
+  computed: {
+    sortedContacts: function sortedContacts() {
+      return _.sortBy(this.contacts, [function (contact) {
+        // if (contact.id === this.selectedId) return Infinity;
+        return contact.unread_count;
+      }]).reverse();
+    }
+  },
   methods: {
-    contactSelected: function contactSelected(index, contact) {
+    contactSelected: function contactSelected(contact) {
       this.selectedId = contact.id;
-      this.$emit('selected', {
-        index: index,
-        contact: contact
-      });
+      this.$emit('selected', contact);
     }
   }
 });
@@ -48073,18 +48100,18 @@ var render = function() {
   return _c(
     "ul",
     { staticClass: "list-group" },
-    _vm._l(_vm.contacts, function(contact, index) {
+    _vm._l(_vm.sortedContacts, function(contact) {
       return _c(
         "li",
         {
           key: contact.id,
           class:
             "list-group-item\n                list-group-item-light\n                list-group-item-action\n                " +
-            (_vm.selectedId == contact.id && "bg-selected"),
+            (_vm.selectedId === contact.id && "bg-selected"),
           staticStyle: { cursor: "pointer" },
           on: {
             click: function($event) {
-              return _vm.contactSelected(index, contact)
+              return _vm.contactSelected(contact)
             }
           }
         },
@@ -48101,7 +48128,7 @@ var render = function() {
               })
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "col-9" }, [
+            _c("div", { staticClass: "col-8" }, [
               _c("div", {
                 staticClass: "name text-dark strong",
                 domProps: { textContent: _vm._s(contact.email) }
@@ -48111,7 +48138,27 @@ var render = function() {
                 staticClass: "name text-secondary strong",
                 domProps: { textContent: _vm._s(contact.name) }
               })
-            ])
+            ]),
+            _vm._v(" "),
+            contact.unread_count
+              ? _c(
+                  "div",
+                  {
+                    staticClass: "col-1 d-flex position-absolute",
+                    staticStyle: {
+                      "justify-content": "center",
+                      "align-items": "center",
+                      right: "5px",
+                      top: "8px"
+                    }
+                  },
+                  [
+                    _c("span", { staticClass: " badge-success rounded px-2" }, [
+                      _vm._v(_vm._s(contact.unread_count))
+                    ])
+                  ]
+                )
+              : _vm._e()
           ])
         ]
       )

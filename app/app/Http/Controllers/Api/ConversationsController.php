@@ -16,6 +16,7 @@ class ConversationsController extends Controller
 
     public function show($userId)
     {
+        Message::where(['from' => $userId, 'to' => auth()->id()])->update(['did_read' => true]);
         $messages = Message::
         whereIn('from', [auth()->id(), $userId])
             ->whereIn('to', [auth()->id(), $userId])

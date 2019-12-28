@@ -3,11 +3,11 @@
         <li :class="`list-group-item
                     list-group-item-light
                     list-group-item-action
-                    ${selectedId == contact.id && 'bg-selected'}`"
+                    ${selectedId === contact.id && 'bg-selected'}`"
             style="cursor: pointer"
-            v-for="(contact, index) in contacts"
+            v-for="(contact) in sortedContacts"
             :key="contact.id"
-            @click="contactSelected(index, contact)">
+            @click="contactSelected(contact)">
             <div class="row">
                 <div class="avatar col-3">
                     <img
@@ -16,9 +16,15 @@
                         class="img-fluid rounded-circle"
                         :alt="contact.name">
                 </div>
-                <div class="col-9">
+                <div class="col-8">
                     <div class="name text-dark strong" v-text="contact.email"></div>
                     <div class="name text-secondary strong" v-text="contact.name"></div>
+                </div>
+                <div
+                    class="col-1 d-flex position-absolute"
+                    style="justify-content: center;align-items: center;right: 5px;top: 8px;"
+                    v-if="contact.unread_count">
+                    <span class=" badge-success rounded px-2">{{contact.unread_count}}</span>
                 </div>
             </div>
         </li>
@@ -36,14 +42,24 @@
 
         data() {
             return {
-                selectedId: 0
+                selectedId: this.contacts.length ? [...this.contacts].shift().id : null
+            }
+        },
+
+        computed: {
+            sortedContacts() {
+                return _.sortBy(this.contacts, [contact => {
+                    // if (contact.id === this.selectedId) return Infinity;
+
+                    return contact.unread_count;
+                }]).reverse();
             }
         },
 
         methods: {
-            contactSelected(index, contact) {
+            contactSelected(contact) {
                 this.selectedId = contact.id;
-                this.$emit('selected', {index, contact});
+                this.$emit('selected', contact);
             }
         }
     }
